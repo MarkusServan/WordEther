@@ -1,5 +1,4 @@
 import { Box, Input, useColorMode, Icon } from "@chakra-ui/react";
-import PoemDisplay from './PoemDisplay'
 import './App.css';
 import { CloseIcon, AddIcon, ArrowUpDownIcon, QuestionOutlineIcon, HamburgerIcon, ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons'
 import TextCarousel from "./TextCarousel";
@@ -20,13 +19,8 @@ import {
   PopoverAnchor,
 } from '@chakra-ui/react'
 
-function Poem({ id }) {
-  return (
-    <div>
-      <PoemDisplay id={id} />
-    </div>
-  );
-}
+
+
 
 function BottomRightIcons() {
   return (

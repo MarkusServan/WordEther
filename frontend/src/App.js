@@ -5,7 +5,8 @@ import TextCarousel from "./TextCarousel";
 import { IconButton } from '@chakra-ui/react'
 import { MdOutlineSpaceBar } from "react-icons/md";
 import { AiOutlineEnter } from "react-icons/ai";
-import { FaAnglesDown, FaAnglesUp } from "react-icons/fa6";
+import { FaAnglesDown, FaAnglesUp,  FaRegHeart, FaHeart   } from "react-icons/fa6";
+import {useState} from 'react';
 
 import {
   Popover,
@@ -22,13 +23,14 @@ import {
 
 
 
-function BottomRightIcons() {
+function BottomRightIcons({toggleShowInput}) {
   return (
     <Box position="fixed" right="0" bottom="0" p="4">
       <IconButton
         aria-label='Add poem'
         variant='ghost'
         fontSize='20px'
+        onClick={toggleShowInput}
         icon={<AddIcon />} />
 
       <Popover>
@@ -75,20 +77,23 @@ function TopLeftHamburgerIcon() {
         icon={<HamburgerIcon />} />
     </Box>
   );
-
 }
+
 
 function App() {
   const bgColor = '#B4A175'
+  const [showInput, setShowInput] = useState(false);
 
+  const toggleShowInput = () => {
+    setShowInput(!showInput);
+  };
 
   return (
     <Box bg={bgColor} minH="100vh" >
 
       <Box>
-        {/*  <Poem id ={0}/> */}
-        <TextCarousel />
-        <BottomRightIcons />
+        <TextCarousel showInput={showInput} toggleShowInput= {toggleShowInput}/>
+        <BottomRightIcons toggleShowInput={toggleShowInput} />
         <TopLeftHamburgerIcon />
 
       </Box>

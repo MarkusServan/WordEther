@@ -12,9 +12,7 @@ const router = express.Router();
 router.post('/poems', async (req, res) => {
   try {
     const newPoem = new Poem({
-      id: req.body.id,
       data: req.body.data,
-      date: req.body.date
     });
     await newPoem.save();
     res.status(201).send(newPoem);
@@ -50,6 +48,52 @@ router.put('/poems/:id', async (req, res) => {
     res.status(400).send(error);
   }
 });
+
+// Endpoint to like a poem
+app.post('/poems/:id/like', async (req, res) => {
+  const { id } = req.params; // Get the poem ID from URL parameters
+
+  try {
+    // Find the poem by ID and increment the likes atomically
+    const updatedPoem = await Poem.findByIdAndUpdate(
+      id,
+      { $inc: { likes: 1 } }, // Increment likes by 1
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPoem) {
+      return res.status(404).send('Poem not found');
+    }
+
+    res.status(200).json(updatedPoem);
+  } catch (error) {
+    console.error('Failed to like the poem:', error);
+    res.status(500).send('Error liking the poem');
+  }
+});
+
+router.post('/poems/:id/unlike', async (req, res) => {
+  const { id } = req.params; // Get the poem ID from URL parameters
+
+  try {
+    // Find the poem by ID and decrement the likes atomically
+    const updatedPoem = await Poem.findByIdAndUpdate(
+      id,
+      { $inc: { likes: -1 } }, // Decrement likes by 1
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPoem) {
+      return res.status(404).send('Poem not found');
+    }
+
+    res.status(200).json(updatedPoem);
+  } catch (error) {
+    console.error('Failed to unlike the poem:', error);
+    res.status(500).send('Error unliking the poem');
+  }
+});
+
 
 // DELETE route to delete a poem by id
 router.delete('/poems/:id', async (req, res) => {

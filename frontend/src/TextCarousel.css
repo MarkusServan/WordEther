@@ -10,6 +10,44 @@
   position: relative;
 }
 
+.like-button-container{
+position: absolute; /* Position relative to the nearest positioned ancestor */          /* Align to the bottom */ 
+bottom: 200px;
+right: 400px;         /* Align to the right */
+padding: 10px; 
+font-size: 26px;
+font-family: 'Lora';
+    /* Add some padding for spacing */
+}
+
+.like-animation{
+  animation: jumpAndGrow 0.5s ease forwards;
+  cursor: pointer;  
+}
+
+.text-input,
+.poem-input {
+  font-size: 28px;
+  padding: 10px;
+  font-family: 'Lora';
+  border: none;
+/*   border-bottom: 2px solid #000; /* Customize the border color as needed */
+  background: transparent;
+  outline: none;
+  color: #000; /* Customize the text color as needed */
+  resize: none; /* Prevent manual resizing */
+  overflow: hidden;
+}
+
+.poem-input::placeholder {
+  color: transparent;
+}
+
+.poem-input:focus::placeholder {
+  opacity: 1;
+  animation: blink 1s step-end infinite;
+}
+
 .text-slide {
   position: absolute;
   width: 100%;
@@ -77,3 +115,18 @@
     opacity: 0;
   }
 }
+
+@keyframes jumpAndGrow {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) translateX(10px) scale(1.2);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+

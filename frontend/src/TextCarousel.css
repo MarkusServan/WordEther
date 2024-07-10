@@ -17,7 +17,16 @@ right: 400px;         /* Align to the right */
 padding: 10px; 
 font-size: 26px;
 font-family: 'Lora';
-    /* Add some padding for spacing */
+opacity: 1; /* Start hidden */
+transition: opacity 0.5s ease-in-out; /* Smooth transition for fading */
+}
+
+.fade-in-like {
+opacity: 1;
+}
+
+.fade-out-like {
+opacity: 0;
 }
 
 .like-animation{
@@ -54,18 +63,25 @@ font-family: 'Lora';
   text-align: center;
 }
 
-.fade-in.textarea-fade {
+/* General styles for the textarea animation container */
+.textarea-fade {
   transition: opacity 0.5s ease-in-out;
+  opacity: 0;  /* Start with hidden by default */
+  visibility: hidden; /* Start with hidden by default */
 }
 
+/* Specific styles for when the textarea is visible */
 .fade-in {
   opacity: 1;
+  visibility: visible; /* Ensure it’s visible when faded in */
 }
 
+/* Specific styles for when the textarea is not visible */
 .fade-out {
   opacity: 0;
-  visibility: hidden;
+  transition: opacity 0.5s ease-in-out, visibility 0s linear 0.5s; /* Delay visibility change */
 }
+
 
 .slide-in-up {
   animation: slide-in-up 0.5s ease-in-out both;

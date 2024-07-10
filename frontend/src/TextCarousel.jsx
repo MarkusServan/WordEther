@@ -12,7 +12,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const [currentId, setCurrentId] = useState(null);
   const [carouselAnimation, setCarouselAnimation] = useState('slide-in');
   const [textareaAnimation, setTextareaAnimation] = useState('fade-in');
-  const [animation, setAnimation] = useState('slide-in');
+  const [likeAnimation, setLikeAnimation] = useState('like-animation');
   const [showTextarea, setShowTextarea] = useState(false);
 
   const textareaRef = useRef(null);
@@ -21,7 +21,6 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const maxChars = 200;
 
   const [liked, setLiked] = useState(false);
-  const [animatingLike, setAnimatingLike] = useState(false);
 
   const [likedPoems, setLikedPoems] = useState(() => {
     // Retrieve liked poems from Local Storage or set to an empty array if none
@@ -42,7 +41,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
         if (data.length > 0) {
           setPoems(data)
-
+          setCurrentId(getRandomNumber(poems.length - 1));
+          setUpdate(true)
         }
         else (console.log("no poems fetched"));
       })
@@ -54,12 +54,14 @@ function TextCarousel({ showInput, toggleShowInput }) {
     console.log("updated")
     if (!updated && poems.length > 0) {
       setCurrentId(getRandomNumber(poems.length - 1));
+      console.log("!updated")
     }
     if (currentId !== null && poems.length > 0 && updated === true) {
       setCurrentPoem(poems[currentId]);
+      console.log("initial run")
       setUpdate(false);
     }
-    
+
   }, [poems]);
 
 
@@ -139,22 +141,48 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
 
   useEffect(() => {
-    /* if (textareaRef.current && showInput) {
-      textareaRef.current.focus();
-      // Directly set the style height during input handling to reduce complexity
-    } */
-    if (showInput) {
-      // Apply animation for sliding in the input form
-      textareaRef.current.focus();
-      setCarouselAnimation('slide-out');
-      setTextareaAnimation('fade-in')
+    let timeoutId;
+    let timeoutId2;
 
+    if (showInput) {
+
+      setCarouselAnimation('slide-out-up');
+      setLikeAnimation('fade-out-like');
+
+      timeoutId = setTimeout(() => {
+        setShowTextarea(true);
+      }, 400);
+
+      timeoutId2 = setTimeout(() => {
+        setTextareaAnimation('fade-in');
+   
+      }, 500);
     } else {
-      // Apply animation for sliding out the input form
+
       setTextareaAnimation('fade-out');
-      setCarouselAnimation('slide-in');
+      setCarouselAnimation('slide-in-down');
+      setLikeAnimation('fade-in-like')
+
+      timeoutId = setTimeout(() => {
+        setShowTextarea(false);
+      }, 500);
     }
+
+    return () => clearTimeout(timeoutId);
   }, [showInput]);
+
+  useEffect(() => {
+    if (showTextarea && textareaRef.current) {
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          console.log("text-area current focus");
+        }
+      }, 500);
+  
+    }
+  }, [showTextarea]); 
+
 
 
   const handleInput = (event) => {
@@ -205,13 +233,13 @@ function TextCarousel({ showInput, toggleShowInput }) {
     toggleShowInput();  // Toggle the visibility of the input field
   };
 
-  const handleLike =  async () => {
+  const handleLike = async () => {
     if (currentPoem && currentPoem._id) {
       try {
         setUpdate(false);
         let url = `http://localhost:5000/poems/${currentPoem._id}/`;
         url += likedPoems.has(currentPoem._id) ? "unlike" : "like";
-  
+
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -219,29 +247,29 @@ function TextCarousel({ showInput, toggleShowInput }) {
           }
         });
         console.log(currentPoem._id);
-  
+
         if (!response.ok) {
           throw new Error(`Failed to ${likedPoems.has(currentPoem._id) ? "unlike" : "like"} the poem`);
         }
-  
-        const updatedPoem = await response.json();
+
         const newLikedPoems = new Set(likedPoems);
         if (likedPoems.has(currentPoem._id)) {
           newLikedPoems.delete(currentPoem._id);
           setLiked(false);
-          currentPoem.likes -=1;
+          currentPoem.likes -= 1;
+          setLikeAnimation('')
         } else {
           newLikedPoems.add(currentPoem._id);
           setLiked(true);
-          currentPoem.likes +=1;
+          setLikeAnimation('like-animation')
+          currentPoem.likes += 1;
+
+
         }
         setLikedPoems(newLikedPoems);
-  
-        setAnimatingLike(true);
-        setTimeout(() => {
-          setAnimatingLike(false);
-        }, 500);
-  
+
+
+
       } catch (error) {
         console.error('Error:', error.message);
       }
@@ -249,18 +277,19 @@ function TextCarousel({ showInput, toggleShowInput }) {
       console.log('No poem selected or poem ID is missing');
     }
   };
-  
+
 
   const handleFocusCarousel = () => {
     if (carouselRef.current) {
       carouselRef.current.focus();
+      console.log("carousel-focus")
     }
   };
 
   return (
     <div className="carousel-container" tabIndex="0" ref={carouselRef}>
-      {showInput ? (
-        <div className={`textarea-fade ${textareaAnimation}`}>
+      {showTextarea ? (
+        <div className={`textarea-fade ${textareaAnimation}`} >
           <textarea
             ref={textareaRef}
             className="poem-input"
@@ -284,15 +313,15 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
         </div>
       ) : (
-        <><p className={`text-slide ${carouselAnimation}`}>{currentPoem ? currentPoem.data : "Loading poem..."}</p>
-          <div className={"like-button-container"}>
+        <><p className={`text-slide ${carouselAnimation}`}>{currentPoem ? currentPoem.data : ""}</p>
+          <div className={`like-button-container ${likeAnimation}`}>
             <IconButton
               aria-label='Like Poem'
               variant='ghost'
               fontSize='24px'
               bottom='2px'
               onClick={handleLike}
-              icon={liked ? <FaHeart className={animatingLike ? "like-animation" : ""} /> : <FaRegHeart />}
+              icon={liked ? <FaHeart /> : <FaRegHeart />}
             />
             {currentPoem && currentPoem.likes ? currentPoem.likes : '0'}
           </div></>

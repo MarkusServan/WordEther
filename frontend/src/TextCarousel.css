@@ -54,6 +54,19 @@ font-family: 'Lora';
   text-align: center;
 }
 
+.fade-in.textarea-fade {
+  transition: opacity 0.5s ease-in-out;
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .slide-in-up {
   animation: slide-in-up 0.5s ease-in-out both;
 }

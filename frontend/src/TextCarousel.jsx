@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './TextCarousel.css'; // Ensure you import the CSS
 import { FaCloudUploadAlt, FaBackspace, FaRegHeart, FaHeart } from "react-icons/fa";
 import { IconButton } from "@chakra-ui/react";
+import { useKeyEvent } from './KeyEventProvider';
 
 
 function TextCarousel({ showInput, toggleShowInput }) {
@@ -14,6 +15,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const [textareaAnimation, setTextareaAnimation] = useState('fade-in');
   const [likeAnimation, setLikeAnimation] = useState('like-animation');
   const [showTextarea, setShowTextarea] = useState(false);
+
+  const { addKeyListener, removeKeyListener } = useKeyEvent();
 
   const textareaRef = useRef(null);
   const carouselRef = useRef(null);
@@ -120,7 +123,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
   //Remember to handle keyboard clicks on plus and help
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if ((event.key === ' ' && showInput === false && document.activeElement === carouselRef.current) || (event.key === 'Enter' && showInput === false) || event.key === "ArrowDown") {
+      if ((event.key === ' ' && showInput === false && document.activeElement === carouselRef.current) || (event.key === 'Enter' && showInput === false && document.activeElement === carouselRef.current) || event.key === "ArrowDown") {
         handleClick();
       } else if (event.key === 'ArrowUp') {
         handleArrowUp();
@@ -137,8 +140,9 @@ function TextCarousel({ showInput, toggleShowInput }) {
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  },); // Added showInput as a dependency
-
+  },);
+  
+ 
 
   useEffect(() => {
     let timeoutId;

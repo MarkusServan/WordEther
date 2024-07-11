@@ -1,0 +1,14 @@
+.header {
+  position: fixed;
+  top: 5%;
+  left: 15%;  
+  align-items: center;
+  font-size: 32px;
+  font-family: 'Lora';
+  transition: opacity 1s ease-out;
+}
+
+.sub-title{
+  font-size: 20px;
+
+}

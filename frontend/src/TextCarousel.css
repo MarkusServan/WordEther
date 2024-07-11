@@ -9,6 +9,11 @@
   overflow: hidden;
   position: relative;
 }
+pre{
+  font-size: 28px;
+  font-family: 'Lora';
+  word-wrap: normal;
+}
 
 .like-button-container{
 position: absolute; /* Position relative to the nearest positioned ancestor */          /* Align to the bottom */ 

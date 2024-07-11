@@ -16,6 +16,8 @@ import { MdOutlineSpaceBar } from "react-icons/md";
 import { AiOutlineEnter } from "react-icons/ai";
 import { Box, } from "@chakra-ui/react";
 import { IconButton } from '@chakra-ui/react'
+import TextCarousel from './TextCarousel';
+import PageHeader from './pageHeader';
 
 
 

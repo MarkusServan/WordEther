@@ -1,11 +1,17 @@
 .header {
   position: fixed;
   top: 5%;
-  left: 15%;  
+  left: 12%;  
   align-items: center;
   font-size: 32px;
   font-family: 'Lora';
   transition: opacity 1s ease-out;
+  transform: translateX(0); /* Start from the original position */
+}
+
+/* Added class for sliding to the left */
+.header.slide-left {
+  transform: translateX(-100px); /* Adjust value as needed */
 }
 
 .sub-title{

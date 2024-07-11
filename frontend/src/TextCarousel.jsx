@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './TextCarousel.css'; // Ensure you import the CSS
 import { FaCloudUploadAlt, FaBackspace, FaRegHeart, FaHeart } from "react-icons/fa";
 import { IconButton } from "@chakra-ui/react";
-import { useKeyEvent } from './KeyEventProvider';
+import PageHeader from './pageHeader';
 
 
 function TextCarousel({ showInput, toggleShowInput }) {
@@ -16,7 +16,13 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const [likeAnimation, setLikeAnimation] = useState('like-animation');
   const [showTextarea, setShowTextarea] = useState(false);
 
-  const { addKeyListener, removeKeyListener } = useKeyEvent();
+  const [isVisible, setIsVisible] = useState(true);
+  const hideHeader = () => {  
+      setTimeout(() => {
+        setIsVisible(false);
+      }, 100);
+    };
+
 
   const textareaRef = useRef(null);
   const carouselRef = useRef(null);
@@ -38,14 +44,17 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   //Remember to change this so that it doesn't load all poems, but a certain number
   useEffect(() => {
+    handleFocusCarousel();
     fetch('http://localhost:5000/poems')
       .then(response => response.json())
       .then(data => {
 
         if (data.length > 0) {
           setPoems(data)
+          console.log(poems.length)
           setCurrentId(getRandomNumber(poems.length - 1));
           setUpdate(true)
+          
         }
         else (console.log("no poems fetched"));
       })
@@ -64,6 +73,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
       console.log("initial run")
       setUpdate(false);
     }
+    console.log(poems)
 
   }, [poems]);
 
@@ -74,9 +84,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   function checkLiked() {
     console.log("checkliked")
-    // Ensure currentPoem is defined and has an _id property
     if (currentPoem && currentPoem._id) {
-      // Return true if the currentPoem's ID is in the likedPoems set
       if (likedPoems.has(currentPoem._id)) {
         setLiked(true);
       }
@@ -91,16 +99,24 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
 
   const handleClick = () => {
+    hideHeader();
+    console.log(textareaRef)
+    console.log(carouselRef)
     console.log("clicked");
     setCarouselAnimation('slide-out-up'); // Start by sliding out
     setTimeout(() => {
-      let newId = getRandomNumber(poems.length - 1);
-      while (newId === currentId) {
-        newId = getRandomNumber(poems.length - 1);
-      }
-      setCurrentId(newId);
-      // Sets the new ID
-      setCurrentPoem(poems[newId]); // Immediately use newId to set the poem
+      setPoems(prevPoems => {
+        if (prevPoems.length > 0) {
+          let newId = getRandomNumber(prevPoems.length - 1);
+          while (newId === currentId) {
+            newId = getRandomNumber(prevPoems.length - 1);
+          }
+          setCurrentId(newId);
+          setCurrentPoem(prevPoems[newId]);
+          console.log("newId:", newId, "poem:", prevPoems[newId]);
+        }
+        return prevPoems; // Return the unchanged poems array
+      });
       setCarouselAnimation('slide-in-up'); // Then slide in the new text
     }, 500);
   };
@@ -114,9 +130,17 @@ function TextCarousel({ showInput, toggleShowInput }) {
         newId = getRandomNumber(poems.length - 1);
       }
       setCurrentId(newId); // Sets the new ID
-      setCurrentPoem(poems[newId]); // Immediately use newId to set the poem
+      setCurrentPoem(poems[currentId]); // Immediately use newId to set the poem
       setCarouselAnimation('slide-in-down');
     }, 500);
+  };
+
+  const handleCancel = () => {
+    toggleShowInput();
+    setTimeout(() => {
+      setText('');  // Clear the text input
+        // Toggle the visibility of the input field
+    }, 100);
   };
 
 
@@ -128,21 +152,27 @@ function TextCarousel({ showInput, toggleShowInput }) {
       } else if (event.key === 'ArrowUp') {
         handleArrowUp();
       } else if (event.key === 'Escape' && showInput) {
-        setText('');
-        toggleShowInput();
+        handleCancel();
+        handleFocusCarousel();
       }
       else if (event.key === 'Escape' && !showInput) {
         handleFocusCarousel();
       }
     };
-
+    const handleMouseClick = (event) => {
+      // Implement logic based on where the click occurred or other conditions
+      if (event.target === carouselRef.current) {
+        handleClick();
+      }
+    };
+    document.addEventListener('click', handleMouseClick);
     document.addEventListener('keydown', handleKeyPress);
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
+      document.addEventListener('click', handleMouseClick);
     };
-  },);
-  
- 
+  },); // Dependencies: showInput and carouselRef
+
 
   useEffect(() => {
     let timeoutId;
@@ -187,6 +217,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
     }
   }, [showTextarea]); 
 
+ 
 
 
   const handleInput = (event) => {
@@ -221,7 +252,14 @@ function TextCarousel({ showInput, toggleShowInput }) {
           setPoems([...poems, newPoem]);
           setText('');
           //console.log(newPoem.likes);
-          toggleShowInput();
+          setTimeout(() => {
+            toggleShowInput();
+            setTimeout(() => {
+
+              handleFocusCarousel();
+            },20)
+
+          },20)
 
         } else {
           console.error('Failed to save the poem');
@@ -232,10 +270,6 @@ function TextCarousel({ showInput, toggleShowInput }) {
     }
   };
 
-  const handleCancel = () => {
-    setText('');  // Clear the text input
-    toggleShowInput();  // Toggle the visibility of the input field
-  };
 
   const handleLike = async () => {
     if (currentPoem && currentPoem._id) {
@@ -268,11 +302,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
           setLikeAnimation('like-animation')
           currentPoem.likes += 1;
 
-
         }
         setLikedPoems(newLikedPoems);
-
-
 
       } catch (error) {
         console.error('Error:', error.message);
@@ -292,6 +323,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   return (
     <div className="carousel-container" tabIndex="0" ref={carouselRef}>
+      <PageHeader isVisible={isVisible} />
       {showTextarea ? (
         <div className={`textarea-fade ${textareaAnimation}`} >
           <textarea
@@ -317,7 +349,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
         </div>
       ) : (
-        <><p className={`text-slide ${carouselAnimation}`}>{currentPoem ? currentPoem.data : ""}</p>
+        <><pre className={`text-slide ${carouselAnimation}`}>{currentPoem ? currentPoem.data : ""}</pre>
           <div className={`like-button-container ${likeAnimation}`}>
             <IconButton
               aria-label='Like Poem'

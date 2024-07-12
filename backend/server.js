@@ -1,8 +1,8 @@
 
-const express = require('express'); 
+const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors({origin: 'http://localhost:3000'}));
+app.use(cors({ origin: 'http://localhost:3000' }));
 
 //const express = require('express');
 const Poem = require('./poemModel.js'); // Adjust the path as necessary
@@ -16,10 +16,38 @@ router.post('/poems', async (req, res) => {
     });
     await newPoem.save();
     res.status(201).send(newPoem);
-  } catch (error) {app.use(cors({origin: 'http://localhost:3000'}));
+  } catch (error) {
+    app.use(cors({ origin: 'http://localhost:3000' }));
     res.status(400).send(error);
   }
 });
+
+
+
+router.get('/poems/random', async (req, res) => {
+  try {
+    // Parse excludedIds from the query string and convert them to Mongoose ObjectIds
+    const excludedIds = req.query.excludedIds ? JSON.parse(req.query.excludedIds).map(id => mongoose.Types.ObjectId(id)) : [];
+    const limit = parseInt(10); // Parse limit ensuring base 10
+
+    // Validate limit to ensure it is a number and within a reasonable range
+  
+
+    // Use the aggregate function to randomly select poems that are not in the excludedIds
+    const poems = await Poem.aggregate([
+      { $match: { _id: { $nin: excludedIds } } }, // Exclude specified IDs
+      { $sample: { size: limit } } // Randomly select 'limit' poems
+    ]);
+
+    res.status(200).json(poems); // Send the selected poems as JSON
+  } catch (error) {
+    // If an error occurs, such as parsing errors, handle it and send a 500 status
+    res.status(500).json({ error: 'An error occurred while fetching the random poems', details: error.message });
+  }
+});
+
+
+
 
 // GET route to fetch all poems
 //Remember to add option to get a certain amount of poems by id

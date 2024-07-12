@@ -9,19 +9,20 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   const [poems, setPoems] = useState([]);
   const [currentPoem, setCurrentPoem] = useState(null);
-  const [updated, setUpdate] = useState(null);
-  const [currentId, setCurrentId] = useState(null);
+  const [fetchedIds, setFetchedIds] = useState([]);
+  const [index, setIndex] = useState(1);
+
   const [carouselAnimation, setCarouselAnimation] = useState('slide-in');
   const [textareaAnimation, setTextareaAnimation] = useState('fade-in');
   const [likeAnimation, setLikeAnimation] = useState('like-animation');
   const [showTextarea, setShowTextarea] = useState(false);
 
   const [isVisible, setIsVisible] = useState(true);
-  const hideHeader = () => {  
-      setTimeout(() => {
-        setIsVisible(false);
-      }, 100);
-    };
+  const hideHeader = () => {
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 100);
+  };
 
 
   const textareaRef = useRef(null);
@@ -30,7 +31,6 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const maxChars = 200;
 
   const [liked, setLiked] = useState(false);
-
   const [likedPoems, setLikedPoems] = useState(() => {
     // Retrieve liked poems from Local Storage or set to an empty array if none
     const savedLikes = JSON.parse(localStorage.getItem('likedPoems') || '[]');
@@ -42,45 +42,49 @@ function TextCarousel({ showInput, toggleShowInput }) {
     localStorage.setItem('likedPoems', JSON.stringify([...likedPoems]));
   }, [likedPoems]);
 
-  //Remember to change this so that it doesn't load all poems, but a certain number
+
+  const fetchStrings = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/poems/random?excludedIds=${encodeURIComponent(JSON.stringify(fetchedIds))}&limit=10`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      
+      // Apply the new data update immediately, managing duplicates
+      setPoems(prevPoems => {
+        const newPoems = data.filter(poem => !prevPoems.some(p => p._id === poem._id));
+        return [...prevPoems, ...newPoems];
+      });
+  
+      setFetchedIds(prevIds => [...prevIds, ...data.map(item => item._id)]);
+  
+    } catch (error) {
+      console.error("Error fetching poems:", error.message);
+    }
+  };
+  
+
+  //Fetch on first launch
   useEffect(() => {
+    fetchStrings();
     handleFocusCarousel();
-    fetch('http://localhost:5000/poems')
-      .then(response => response.json())
-      .then(data => {
+    setTimeout(() => {
+      setIndex(0);
+    },200);
+  }, [])
 
-        if (data.length > 0) {
-          setPoems(data)
-          console.log(poems.length)
-          setCurrentId(getRandomNumber(poems.length - 1));
-          setUpdate(true)
-          
-        }
-        else (console.log("no poems fetched"));
-      })
-      .catch(error => console.error('Error:', error));
-  }, []); //passing an empty array to make the effect run only after the intial render
-
-
+  //Re-render when index changes
   useEffect(() => {
-    console.log("updated")
-    if (!updated && poems.length > 0) {
-      setCurrentId(getRandomNumber(poems.length - 1));
-      console.log("!updated")
+    setCurrentPoem(poems[index]);
+    if(index !== 0 && index % 18 === 0 ){
+      fetchStrings();
     }
-    if (currentId !== null && poems.length > 0 && updated === true) {
-      setCurrentPoem(poems[currentId]);
-      console.log("initial run")
-      setUpdate(false);
-    }
-    console.log(poems)
-
-  }, [poems]);
+    console.log(currentPoem)
+    console.log("index: " + index)
+  }, [index]);
 
 
-  function getRandomNumber(x) {
-    return Math.floor(Math.random() * (x + 1));
-  }
 
   function checkLiked() {
     console.log("checkliked")
@@ -100,46 +104,35 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   const handleClick = () => {
     hideHeader();
-    console.log(textareaRef)
-    console.log(carouselRef)
     console.log("clicked");
-    setCarouselAnimation('slide-out-up'); // Start by sliding out
+    console.log(poems)
+    setCarouselAnimation('slide-out-up');
     setTimeout(() => {
-      setPoems(prevPoems => {
-        if (prevPoems.length > 0) {
-          let newId = getRandomNumber(prevPoems.length - 1);
-          while (newId === currentId) {
-            newId = getRandomNumber(prevPoems.length - 1);
-          }
-          setCurrentId(newId);
-          setCurrentPoem(prevPoems[newId]);
-          console.log("newId:", newId, "poem:", prevPoems[newId]);
-        }
-        return prevPoems; // Return the unchanged poems array
-      });
+      setIndex(prevIndex => prevIndex + 1); // Start by sliding out
       setCarouselAnimation('slide-in-up'); // Then slide in the new text
+      // Return the unchanged poems array
     }, 500);
   };
 
   const handleArrowUp = () => {
     console.log("arrowed");
-    setCarouselAnimation('slide-out-down');
-    setTimeout(() => {
-      let newId = getRandomNumber(poems.length - 1);
-      while (newId === currentId) {
-        newId = getRandomNumber(poems.length - 1);
-      }
-      setCurrentId(newId); // Sets the new ID
-      setCurrentPoem(poems[currentId]); // Immediately use newId to set the poem
-      setCarouselAnimation('slide-in-down');
-    }, 500);
+    if (index !== 0) {
+      setCarouselAnimation('slide-out-down');
+
+      setTimeout(() => {
+
+        setIndex(prevIndex => prevIndex - 1); // Immediately use newId to set the poem
+        setCarouselAnimation('slide-in-down');
+      }, 500);
+
+    }
   };
 
   const handleCancel = () => {
     toggleShowInput();
     setTimeout(() => {
       setText('');  // Clear the text input
-        // Toggle the visibility of the input field
+      // Toggle the visibility of the input field
     }, 100);
   };
 
@@ -162,7 +155,10 @@ function TextCarousel({ showInput, toggleShowInput }) {
     const handleMouseClick = (event) => {
       // Implement logic based on where the click occurred or other conditions
       if (event.target === carouselRef.current) {
-        handleClick();
+        setTimeout(() => {
+
+          handleClick();
+        }, 100);
       }
     };
     document.addEventListener('click', handleMouseClick);
@@ -189,7 +185,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
       timeoutId2 = setTimeout(() => {
         setTextareaAnimation('fade-in');
-   
+
       }, 500);
     } else {
 
@@ -213,11 +209,11 @@ function TextCarousel({ showInput, toggleShowInput }) {
           console.log("text-area current focus");
         }
       }, 500);
-  
-    }
-  }, [showTextarea]); 
 
- 
+    }
+  }, [showTextarea]);
+
+
 
 
   const handleInput = (event) => {
@@ -247,9 +243,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
         });
         if (response.ok) {
           const newPoem = await response.json();
-          setUpdate(true);
-          setCurrentId(poems.length); //Such that this poem will show on return
           setPoems([...poems, newPoem]);
+          setIndex(poems.length); //Such that this poem will show on return
           setText('');
           //console.log(newPoem.likes);
           setTimeout(() => {
@@ -257,9 +252,9 @@ function TextCarousel({ showInput, toggleShowInput }) {
             setTimeout(() => {
 
               handleFocusCarousel();
-            },20)
+            }, 20)
 
-          },20)
+          }, 20)
 
         } else {
           console.error('Failed to save the poem');
@@ -274,7 +269,6 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const handleLike = async () => {
     if (currentPoem && currentPoem._id) {
       try {
-        setUpdate(false);
         let url = `http://localhost:5000/poems/${currentPoem._id}/`;
         url += likedPoems.has(currentPoem._id) ? "unlike" : "like";
 

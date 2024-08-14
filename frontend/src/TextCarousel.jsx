@@ -92,8 +92,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
         return [...prevPoems, ...newPoems];
       });
   
-      setFetchedIds(prevIds => [...prevIds, ...data.map(item => item._id)]);
-      
+      setFetchedIds(prevIds => [...prevIds, ...data.map(item => item._id)]); 
   
     } catch (error) {
       console.error("Error fetching poems:", error.message);

@@ -8,6 +8,10 @@ const app = express();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
 
 // CORS setup - allow requests from localhost during development, and from the app domain in production
 const allowedOrigins = ['http://localhost:3000', 'https://word-ether2.herokuapp.com'];

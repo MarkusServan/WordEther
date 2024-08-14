@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Scroll through anonymous thoughts and poems from strangers.\r Post your own, to be read by others.",
   "main": "server.js",
+  "engines": {
+    "node": "20.15.0"
+  },
   "author": "Markus Servan",
   "license": "ISC",
   "private": true,

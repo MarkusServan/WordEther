@@ -28,8 +28,7 @@ router.get('/poems/random', async (req, res) => {
   try {
     // Parse excludedIds from the query string and convert them to Mongoose ObjectIds
     const excludedIds = req.query.excludedIds ? JSON.parse(req.query.excludedIds).map(id => mongoose.Types.ObjectId(id)) : [];
-    const limit = parseInt(10); // Parse limit ensuring base 10
-
+    const limit = parseInt(req.query.limit, 10) || 10;
     // Validate limit to ensure it is a number and within a reasonable range
   
 
@@ -38,6 +37,7 @@ router.get('/poems/random', async (req, res) => {
       { $match: { _id: { $nin: excludedIds } } }, // Exclude specified IDs
       { $sample: { size: limit } } // Randomly select 'limit' poems
     ]);
+    console.log("Limit received:", limit);
 
     res.status(200).json(poems); // Send the selected poems as JSON
   } catch (error) {
@@ -45,8 +45,6 @@ router.get('/poems/random', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching the random poems', details: error.message });
   }
 });
-
-
 
 
 // GET route to fetch all poems

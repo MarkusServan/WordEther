@@ -10,10 +10,8 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "npm run server",
     "server": "node backend/server.js",
-    "client": "npm run frontend/start --prefix frontend",
-    "build": "npm run build --prefix frontend",
     "heroku-postbuild": "npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

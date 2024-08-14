@@ -17,9 +17,10 @@
     "react-icons": "^5.2.1",
     "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
+    "concurrently": "^8.2.2",
   },
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "npm run server",
     "server": "node ../backend/server.js",
     "client": "react-scripts start",
     "build": "react-scripts build",

@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 // CORS setup - allow requests from localhost during development, and from the app domain in production
-const allowedOrigins = ['http://localhost:3000', 'https://word-ether.herokuapp.com'];
+const allowedOrigins = ['http://localhost:3000', 'https://word-ether2.herokuapp.com'];
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)

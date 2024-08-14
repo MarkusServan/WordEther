@@ -2,8 +2,10 @@ import './App.css';
 import { Box} from "@chakra-ui/react";
 import TextCarousel from "./TextCarousel";
 import PageHeader from './pageHeader';
-import BottomRightIcons, {TopLeftHamburgerIcon}  from "./edgeIcons";
+import BottomRightIcons  from "./edgeIcons";
+import Instructions from "./Instructions"
 import {useState} from 'react';
+import ScrollInstructions from './ScrollInstructions';
 
 function App() {
   const bgColor = '#B4A175'
@@ -20,9 +22,10 @@ function App() {
 
       <Box>
         <PageHeader />
+        <Instructions />
+       
         <TextCarousel showInput={showInput} toggleShowInput= {toggleShowInput}/>
         <BottomRightIcons toggleShowInput={toggleShowInput} />
-        <TopLeftHamburgerIcon />
 
       </Box>
     </Box>

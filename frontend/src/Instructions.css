@@ -1,0 +1,16 @@
+.instructions {
+  position: fixed;
+  bottom: 3.5%;
+  right: 8%;  
+  align-items: center;
+  font-size: 20px;
+  font-family: 'Lora';
+  transition: opacity 1s ease-out;
+  transform: translateX(0); /* Start from the original position */
+}
+
+/* Added class for sliding to the left */
+.header.slide-left {
+  transform: translateX(-100px); /* Adjust value as needed */
+}
+

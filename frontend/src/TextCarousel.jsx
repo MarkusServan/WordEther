@@ -3,6 +3,8 @@ import './TextCarousel.css'; // Ensure you import the CSS
 import { FaCloudUploadAlt, FaBackspace, FaRegHeart, FaHeart } from "react-icons/fa";
 import { IconButton } from "@chakra-ui/react";
 import PageHeader from './pageHeader';
+import Instructions from './Instructions';
+import ScrollInstructions from './ScrollInstructions';
 
 
 function TextCarousel({ showInput, toggleShowInput }) {
@@ -13,6 +15,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const [index, setIndex] = useState(1);
 
   const [carouselAnimation, setCarouselAnimation] = useState('slide-in');
+  const previousScrollY = useRef(0);
+
   const [textareaAnimation, setTextareaAnimation] = useState('fade-in');
   const [likeAnimation, setLikeAnimation] = useState('like-animation');
   const [showTextarea, setShowTextarea] = useState(false);
@@ -37,6 +41,37 @@ function TextCarousel({ showInput, toggleShowInput }) {
     return new Set(savedLikes);
   });
 
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  useEffect(() => {
+    const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+
+        if (isMobile) {
+            // Custom behavior for mobile
+            if (currentScrollY > previousScrollY.current) {
+                setCarouselAnimation('slide-out-up');
+            } else {
+                setCarouselAnimation('slide-in-down');
+            }
+        } else {
+            // Custom behavior for desktop
+            if (currentScrollY > previousScrollY.current) {
+                setCarouselAnimation('slide-out-up');
+            } else {
+                setCarouselAnimation('slide-in-down');
+            }
+        }
+        
+        previousScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+        window.removeEventListener('scroll', handleScroll);
+    };
+}, [isMobile]);
+
   useEffect(() => {
     // Convert the Set to an Array for storage
     localStorage.setItem('likedPoems', JSON.stringify([...likedPoems]));
@@ -58,6 +93,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
       });
   
       setFetchedIds(prevIds => [...prevIds, ...data.map(item => item._id)]);
+      
   
     } catch (error) {
       console.error("Error fetching poems:", error.message);
@@ -79,6 +115,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
     setCurrentPoem(poems[index]);
     if(index !== 0 && index % 18 === 0 ){
       fetchStrings();
+      console.log(fetchedIds)
     }
     console.log(currentPoem)
     console.log("index: " + index)
@@ -103,15 +140,20 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
 
   const handleClick = () => {
-    hideHeader();
-    console.log("clicked");
-    console.log(poems)
-    setCarouselAnimation('slide-out-up');
-    setTimeout(() => {
-      setIndex(prevIndex => prevIndex + 1); // Start by sliding out
-      setCarouselAnimation('slide-in-up'); // Then slide in the new text
-      // Return the unchanged poems array
-    }, 500);
+    if(index !== poems.length -1)
+    {
+
+      hideHeader();
+      console.log("clicked");
+      console.log(poems)
+      setCarouselAnimation('slide-out-up');
+      setTimeout(() => {
+        setIndex(prevIndex => prevIndex + 1); // Start by sliding out
+        setCarouselAnimation('slide-in-up'); // Then slide in the new text
+        console.log("fetched IDS : "+ fetchedIds)
+        // Return the unchanged poems array
+      }, 500);
+    }
   };
 
   const handleArrowUp = () => {
@@ -140,34 +182,37 @@ function TextCarousel({ showInput, toggleShowInput }) {
   //Remember to handle keyboard clicks on plus and help
   useEffect(() => {
     const handleKeyPress = (event) => {
-      if ((event.key === ' ' && showInput === false && document.activeElement === carouselRef.current) || (event.key === 'Enter' && showInput === false && document.activeElement === carouselRef.current) || event.key === "ArrowDown") {
+      if ((event.key === ' ' || event.key === 'Enter') && !showInput && document.activeElement === carouselRef.current) {
+        handleClick();
+      } else if (event.key === "ArrowDown") {
         handleClick();
       } else if (event.key === 'ArrowUp') {
         handleArrowUp();
       } else if (event.key === 'Escape' && showInput) {
         handleCancel();
         handleFocusCarousel();
-      }
-      else if (event.key === 'Escape' && !showInput) {
+      } else if (event.key === 'Escape' && !showInput) {
         handleFocusCarousel();
       }
     };
+  
     const handleMouseClick = (event) => {
-      // Implement logic based on where the click occurred or other conditions
       if (event.target === carouselRef.current) {
-        setTimeout(() => {
-
-          handleClick();
-        }, 100);
+        handleClick();
       }
     };
-    document.addEventListener('click', handleMouseClick);
+  
+    // Add event listeners
     document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('click', handleMouseClick);
+  
+    // Cleanup function
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
-      document.addEventListener('click', handleMouseClick);
+      document.removeEventListener('click', handleMouseClick);
     };
-  },); // Dependencies: showInput and carouselRef
+  }, [showInput, carouselRef, handleClick, handleArrowUp, handleCancel]);
+   // Dependencies: showInput and carouselRef
 
 
   useEffect(() => {
@@ -318,6 +363,8 @@ function TextCarousel({ showInput, toggleShowInput }) {
   return (
     <div className="carousel-container" tabIndex="0" ref={carouselRef}>
       <PageHeader isVisible={isVisible} />
+      <Instructions isVisible={isVisible} />
+      <ScrollInstructions isVisible={isVisible} />
       {showTextarea ? (
         <div className={`textarea-fade ${textareaAnimation}`} >
           <textarea

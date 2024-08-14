@@ -3,18 +3,40 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column; /* Ensure vertical stacking */
   height: 100vh;
+  width: 100%;
   font-size: 28px;
   font-family: 'Lora';
   overflow: hidden;
   position: relative;
 }
-pre{
+pre {
   font-size: 28px;
   font-family: 'Lora';
-  word-wrap: normal;
+  white-space: pre-wrap; /* Ensures that text wraps onto the next line */
+  word-wrap: break-word; /* Ensures that long words break and wrap onto the next line */
+  max-width: 60%; /* Set a maximum width for the poem box */
+  margin: 0 auto; /* Center the box horizontally */
+  padding: 20px; /* Add padding inside the box for better readability */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  overflow: hidden; /* Prevents horizontal scrolling */
 }
 
+
+@media (max-width: 768px) {
+  pre {
+    max-width: 90%; /* Increase width on smaller screens */
+    font-size: 24px; /* Decrease font size for better readability on small devices */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  pre {
+    max-width: 70%;
+    font-size: 26px;
+  }
+}
 .like-button-container{
 position: absolute; /* Position relative to the nearest positioned ancestor */          /* Align to the bottom */ 
 bottom: 200px;

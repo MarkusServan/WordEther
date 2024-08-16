@@ -80,7 +80,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   const fetchStrings = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/poems/random?excludedIds=${encodeURIComponent(JSON.stringify(fetchedIds))}&limit=10`);
+      const response = await fetch(`http://word-ether2.herokuapp.com/poems/random?excludedIds=${encodeURIComponent(JSON.stringify(fetchedIds))}&limit=10`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -276,7 +276,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const handleSubmit = async () => {
     if (text.trim().length > 0) {
       try {
-        const response = await fetch('http://localhost:5000/poems', {
+        const response = await fetch('http://word-ether2.herokuapp.com/poems', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -313,7 +313,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
   const handleLike = async () => {
     if (currentPoem && currentPoem._id) {
       try {
-        let url = `http://localhost:5000/poems/${currentPoem._id}/`;
+        let url = `http://word-ether2.herokuapp.com/poems/${currentPoem._id}/`;
         url += likedPoems.has(currentPoem._id) ? "unlike" : "like";
 
         const response = await fetch(url, {

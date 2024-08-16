@@ -89,7 +89,14 @@ function TextCarousel({ showInput, toggleShowInput }) {
       // Apply the new data update immediately, managing duplicates
       setPoems(prevPoems => {
         const newPoems = data.filter(poem => !prevPoems.some(p => p._id === poem._id));
-        return [...prevPoems, ...newPoems];
+        const updatedPoems = [...prevPoems, ...newPoems];
+  
+        // Set the first poem as the current poem
+        if (updatedPoems.length > 0 && !currentPoem) {
+          setCurrentPoem(updatedPoems[0]);
+        }
+        
+        return updatedPoems;
       });
   
       setFetchedIds(prevIds => [...prevIds, ...data.map(item => item._id)]); 
@@ -99,6 +106,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
     }
   };
   
+  
 
   //Fetch on first launch
   useEffect(() => {
@@ -106,7 +114,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
     handleFocusCarousel();
     setTimeout(() => {
       setIndex(0);
-    },200);
+    },500);
   }, [])
 
   //Re-render when index changes

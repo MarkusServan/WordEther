@@ -4,6 +4,6 @@ const poemSchema = new mongoose.Schema({
   likes: { type: Number, default: 0 }
 });
 
-const poem = mongoose.model('Poem', poemSchema);
+const poem = mongoose.model('Poem', poemSchema, 'poems');
 
 module.exports = poem;

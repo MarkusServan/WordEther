@@ -27,12 +27,12 @@ app.use(cors({
   }
 }));
 
-// MongoDB connection
+/* // MongoDB connection
 const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/WordEther';
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+}); */
 
 // API routes
 router.post('/poems', async (req, res) => {

@@ -11,7 +11,14 @@ app.use(express.json());
 
 
 // CORS setup - allow requests from localhost during development, and from the app domain in production
-const allowedOrigins = ['http://localhost:3000', 'https://word-ether2-642016a371b5.herokuapp.com','http://www.wordether.com','https://www.wordether.com','wordether.com','http://wordether.com','https://wordether.com'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://word-ether2-642016a371b5.herokuapp.com',
+  'http://www.wordether.com',
+  'https://www.wordether.com',
+  'http://wordether.com',
+  'https://wordether.com'
+];
 
 const preferredDomain = 'www.wordether.com';
 app.use((req, res, next) => {

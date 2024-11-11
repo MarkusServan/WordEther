@@ -80,7 +80,7 @@ function TextCarousel({ showInput, toggleShowInput }) {
 
   const fetchStrings = async () => {
     try {
-      const response = await fetch(`https://word-ether2-642016a371b5.herokuapp.com/poems/random?excludedIds=${encodeURIComponent(JSON.stringify(fetchedIds))}&limit=10`);
+      const response = await fetch(`https://word-ether2-642016a371b5.herokuapp.com/poems/random?excludedIds=${encodeURIComponent(JSON.stringify(fetchedIds))}&limit=20`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

@@ -7,7 +7,7 @@ const router = express.Router();
 const app = express();
 
 // Middleware to parse JSON bodies
-app.use(express.json());
+
 
 
 // CORS setup - allow requests from localhost during development, and from the app domain in production
@@ -20,14 +20,6 @@ const allowedOrigins = [
   'https://wordether.com'
 ];
 
-const preferredDomain = 'www.wordether.com';
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] !== 'https' || req.headers.host !== preferredDomain) {
-    return res.redirect(`https://${preferredDomain}${req.url}`);
-  }
-  next();
-});
-
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -39,6 +31,19 @@ app.use(cors({
     return callback(null, true);
   }
 }));
+
+app.use(express.json());
+
+const preferredDomain = 'www.wordether.com';
+app.use((req, res, next) => {
+  const isApiRequest = req.path.startsWith('/api') || req.path.startsWith('/poems');
+  if (!isApiRequest && (req.headers['x-forwarded-proto'] !== 'https' || req.headers.host !== preferredDomain)) {
+    return res.redirect(`https://${preferredDomain}${req.url}`);
+  }
+  next();
+});
+
+
 
 /* // MongoDB connection
 const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/WordEther';

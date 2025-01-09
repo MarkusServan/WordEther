@@ -8,7 +8,7 @@ function ScrollInstructions({isVisible}) {
 
     return (
         <div className="scrollInstructions" style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 1s ease-out' }}>
-            <div> <FaAnglesUp /> Scroll / Piltaster <FaAnglesDown /></div> 
+            <div> <FaAnglesUp /> Klikk / Piltaster <FaAnglesDown /></div> 
         </div>
     );
 }
